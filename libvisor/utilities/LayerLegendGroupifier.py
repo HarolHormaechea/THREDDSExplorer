@@ -3,9 +3,9 @@ Created on 28 de mar. de 2016
 
 @author: IHC
 '''
-from PyQt4.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 from qgis.core import QgsRectangle, QgsLayerTreeLayer, QgsLayerTreeGroup, \
-                         QgsProject, QgsMapLayerRegistry
+                         QgsProject
 from qgis.utils import iface
 from threading import RLock
 
@@ -64,7 +64,7 @@ class LayerGroupifier(QObject):
         with self.groupAssignmentLock:
             self.layersToBeGrouped = len(self.layerList)
             self.getGeneratedGroup()
-            registryAddedLayers = QgsMapLayerRegistry.instance().addMapLayers(self.layerList, False)
+            registryAddedLayers = QgsProject.instance().addMapLayers(self.layerList, False)
             for item in registryAddedLayers:
                 if item not in self.layerList:
                     #print("****WARNING: A LAYER WAS NOT ADDED TO THE REGISTRY: "+str(item)+" --- ID : "+item.id())

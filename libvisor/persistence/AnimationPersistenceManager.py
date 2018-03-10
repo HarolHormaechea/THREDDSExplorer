@@ -3,7 +3,7 @@ Created on 9 de feb. de 2016
 
 @author: IHC
 '''
-from PyQt4.Qt import QFileDialog
+from PyQt5.Qt import QFileDialog
 
 class AnimationPersistenceManager(object):
     '''

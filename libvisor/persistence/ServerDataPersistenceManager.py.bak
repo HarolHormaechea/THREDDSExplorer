@@ -5,18 +5,18 @@ Created on 2016-01-04
 @author: IHC
 """
 
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtWidgets import QAbstractItemView
+from PyQt4.QtWidgets import QDialog
+from PyQt4.QtWidgets import QMessageBox
+from PyQt4.QtWidgets import QTableWidgetItem
+from PyQt4.QtWidgets import QAbstractItemView
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import QSettings
+from PyQt4.QtCore import pyqtSignal
 
-from . import Server_Manager_UI as ManagerUI
-from . import AddServerWindowManager as addServerManager
-from .ThreddsServerInfo import ThreddsServerInfoObject, isValidName, isValidURL
+import THREDDSExplorer.libvisor.persistence.Server_Manager_UI as ManagerUI
+from THREDDSExplorer.libvisor.persistence.AddServerWindowManager import AddServerWindowManager as addServerManager
+from THREDDSExplorer.libvisor.persistence.ThreddsServerInfo import ThreddsServerInfoObject, isValidName, isValidURL
 
 class ServerStorageManager(QDialog):
     """Handles persistence of preferences for this application,
@@ -144,7 +144,7 @@ class ServerStorageManager(QDialog):
 
         for key in settings.childKeys():
             ret = settings.value(key)
-            if type(ret) in [ str, str ]:
+            if type(ret) in [ str, unicode ]:
                 name, url = key, ret
             else:
                 try:
@@ -218,7 +218,7 @@ class ServerStorageManager(QDialog):
         if type(ret) == bool:
             return ret
 
-        elif type(ret) in [ str, str ]:
+        elif type(ret) in [ str, unicode ]:
             ret = ret.lower()
             if ret == "true":
                 return True

@@ -23,6 +23,7 @@
 """
 
 
+from .THREDDS_Explorer import THREDDSExplorer
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load THREDDSExplorer class from file THREDDSExplorer.
@@ -31,5 +32,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .THREDDS_Explorer import THREDDSExplorer
     return THREDDSExplorer(iface)

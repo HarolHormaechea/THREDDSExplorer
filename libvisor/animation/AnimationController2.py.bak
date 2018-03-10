@@ -13,15 +13,15 @@ from datetime import timedelta
 # QGIS /PyQt libs:
 from qgis.utils import iface
 from qgis.core import QgsMessageLog
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal, pyqtSlot, Qt
+from PyQt4.QtCore import QObject, QTimer, pyqtSignal, pyqtSlot, Qt
 
 # Our libs:
-from .Animation2 import AnimationData
-from . import AnimationOtherLayerManager
-from .AnimationLayer import AnimationLayer
-from ..utilities.LayerLegendGroupifier import LayerGroupifier
-from ..providersmanagers.wcs.WCSBatchDownloadUtil import WCSDownloadWorkerThread
-from ..providersmanagers.wms.WMSBatchDownloadUtil import WMSDownloadWorkerThread
+from THREDDSExplorer.libvisor.animation.Animation2 import AnimationData
+from THREDDSExplorer.libvisor.animation import AnimationOtherLayerManager
+from THREDDSExplorer.libvisor.animation.AnimationLayer import AnimationLayer
+from THREDDSExplorer.libvisor.utilities.LayerLegendGroupifier import LayerGroupifier
+from THREDDSExplorer.libvisor.providersmanagers.wcs.WCSBatchDownloadUtil import WCSDownloadWorkerThread
+from THREDDSExplorer.libvisor.providersmanagers.wms.WMSBatchDownloadUtil import WMSDownloadWorkerThread
 
 class Controller(QObject):
     """Manages all operations required to handle animation operations.
@@ -256,7 +256,7 @@ class Controller(QObject):
             if animationLayer.getAnimationLegendGroups():
                 self.animationGroups.append(animationLayer.getAnimationLegendGroups())
                 self.animationElements.append(animationLayer.getAnimationData())
-                self.updateTimeRange(list(animationLayer.getAnimationData().frameData.keys()))
+                self.updateTimeRange(animationLayer.getAnimationData().frameData.keys())
 
         self.maxAnimationGroupsToBeCreated = len(wmsLayers) + len(wcsLayers) + len(otherLayers)
 
@@ -276,7 +276,7 @@ class Controller(QObject):
 
     def cancelLoad(self):
         try:
-            for item in list(self.threadsInUse.keys()):
+            for item in self.threadsInUse.keys():
                 item.requestCancellation()
                 #print("ITEM ALIVE: "+str((self.threadsInUse[item]).isAlive()))
                 self.threadsInUse.pop(item)
@@ -391,7 +391,7 @@ class Controller(QObject):
     def initializeAnimator(self, animationLayerObject):
         animationData = animationLayerObject.getAnimationData()
         self.animationElements.append(animationData)
-        self.updateTimeRange(list(animationData.frameData.keys())) #We update the list of times covered by our frames
+        self.updateTimeRange(animationData.frameData.keys()) #We update the list of times covered by our frames
 
     def addExternalTimeLayer(self):
         self.addLayerMenu = AnimationOtherLayerManager.AnimationOtherLayerManager(self)
@@ -420,12 +420,12 @@ class Controller(QObject):
 
     @pyqtSlot(AnimationLayer,str)
     def addPendingLayerGroupRequest(self, animationLayerObject, groupName):
-        while len(list(self.threadsInUse.keys())) > 0:
+        while len(self.threadsInUse.keys()) > 0:
             time.sleep(0.5)
         self.createLayerGroupsOnMainThread.emit(animationLayerObject, groupName)
 
     def createLayerGroup(self, animationLayerObject, groupName):
-        layerList = list(animationLayerObject.getAnimationData().frameData.values())
+        layerList = animationLayerObject.getAnimationData().frameData.values()
         groupifier = LayerGroupifier(layerList, groupName)
         groupifier.statusSignal.connect(self.statusSignal)
         groupifier.groupifyComplete.connect(self._newLegendGroupReady)

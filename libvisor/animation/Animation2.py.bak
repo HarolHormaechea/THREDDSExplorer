@@ -53,7 +53,7 @@ class AnimationData(object):
                 #print(self.animationName+" 2 -Exact frame for "+str(time)+" found.")
             except KeyError:
                 #print(self.animationName+"Exact frame for "+str(time)+" not found. Evaluating deltas")
-                possibleFrame = min(list(self.frameData.keys()), key = lambda date : abs(date - time))
+                possibleFrame = min(self.frameData.keys(), key = lambda date : abs(date - time))
                 #print("POSSIBLE FRAME: "+str(possibleFrame))
                 #print("DEVIATION: "+str(abs(possibleFrame - time))+" from a tolerance of: "+str(tolerance))
                 if abs(possibleFrame - time) <= tolerance:

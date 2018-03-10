@@ -3,14 +3,14 @@ Created on 27 de ene. de 2016
 
 @author: IHC
 '''
-from PyQt5.QtWidgets import QMessageBox, QWidget
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from ..providersmanagers.wcs.WCSParser import WCSparser
-from . import Animation_add_wcs_layer
-from .AnimationLayer import AnimationLayer
-from urllib.error import HTTPError, URLError
+from PyQt4.QtWidgets import QMessageBox, QWidget
+from PyQt4.QtCore import pyqtSignal, pyqtSlot, SIGNAL
+from THREDDSExplorer.libvisor.providersmanagers.wcs.WCSParser import WCSparser
+from THREDDSExplorer.libvisor.animation import Animation_add_wcs_layer
+from THREDDSExplorer.libvisor.animation.AnimationLayer import AnimationLayer
+from urllib2 import HTTPError, URLError
 from _socket import timeout
-from ..providersmanagers.BoundingBoxInfo import BoundingBox
+from THREDDSExplorer.libvisor.providersmanagers.BoundingBoxInfo import BoundingBox
 
 
 class AnimationWCSLayerManager(QWidget):
@@ -36,9 +36,8 @@ class AnimationWCSLayerManager(QWidget):
         
         self.mapObject = mapObject
         self.loadLayerList()
-        #TODO: Implement signals new-stye
-        #self.connect(self.dialog.layerSelector, SIGNAL("currentIndexChanged(const QString&)"), self._onSelectedCoverageChanged)
-        #self.connect(self.dialog.beginTimeSelector, SIGNAL("currentIndexChanged(int)"), self._onSelectedBeginTime)
+        self.connect(self.dialog.layerSelector, SIGNAL("currentIndexChanged(const QString&)"), self._onSelectedCoverageChanged)
+        self.connect(self.dialog.beginTimeSelector, SIGNAL("currentIndexChanged(int)"), self._onSelectedBeginTime)
         
         self.dialog.buttonAddLayer.clicked.connect(self._onAcceptClicked)
         
@@ -65,7 +64,7 @@ class AnimationWCSLayerManager(QWidget):
                 self.dataList[layer.getName()] = layer.getTiempos()
 
         self.dialog.layerSelector.clear()
-        self.dialog.layerSelector.addItems(list(self.dataList.keys()))
+        self.dialog.layerSelector.addItems(self.dataList.keys())
         self.dialog.layerSelector.setCurrentIndex(0)
         #We force a first update on the available times...
         self._onSelectedCoverageChanged(self.dialog.layerSelector.currentText())

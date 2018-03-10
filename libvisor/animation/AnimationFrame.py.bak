@@ -9,21 +9,21 @@ import time
 import threading
 import traceback
 from _socket import timeout
-from urllib.error import URLError
+from urllib2 import URLError
 from datetime import timedelta
-from http.client import HTTPException
+from httplib import HTTPException
 
 # QGIS / PyQt libs:
 from qgis.utils import iface
-from PyQt5.QtCore import QTime
-from PyQt5.QtWidgets import QMessageBox
+from PyQt4.QtCore import QTime
+from PyQt4.QtWidgets import QMessageBox
 from qgis.core import QgsMessageLog
-from PyQt5.Qt import pyqtSlot, pyqtSignal, Qt
-from PyQt5.QtWidgets import QTableWidgetItem, QDockWidget
+from PyQt4.Qt import pyqtSlot, pyqtSignal, Qt
+from PyQt4.QtWidgets import QTableWidgetItem, QDockWidget
 
 # Our libs:
-from .AnimationController2 import Controller
-from . import AnimationWCSManager, AnimationWMSManager, Animation_menu
+from THREDDSExplorer.libvisor.animation.AnimationController2 import Controller
+from THREDDSExplorer.libvisor.animation import AnimationWCSManager, AnimationWMSManager, Animation_menu
 
 class AnimationFrame(QDockWidget):
     """Animation widget UI manager.

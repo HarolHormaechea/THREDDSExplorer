@@ -14,11 +14,11 @@ __copyright__ = 'Copyright 2016, IH Cantabria'
 
 import unittest
 
-from PyQt4.QtGui import QDockWidget
+from PyQt4.QtWidgets import QDockWidget
 
 from THREDDS_Explorer_dockwidget import THREDDSExplorerDockWidget
 
-from utilities import get_qgis_app
+from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
 

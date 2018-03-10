@@ -24,9 +24,9 @@ from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 # Initialize Qt resources from file resources.py
-from . import resources
+import resources
 # Import the code for the dialog
-from . import Visor_UI
+from Visor_UI import Visor
 import os.path
 
 
@@ -46,7 +46,6 @@ class THREDDSExplorer:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        print(QSettings().value('locale/userLocale'));
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
@@ -61,14 +60,14 @@ class THREDDSExplorer:
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = Visor_UI.Visor()
+        self.dlg = Visor()
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr('THREDDS Visor')
+        self.menu = self.tr(u'THREDDS Visor')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar('THREDDS Visor')
-        self.toolbar.setObjectName('THREDDS Visor')
+        self.toolbar = self.iface.addToolBar(u'THREDDS Visor')
+        self.toolbar.setObjectName(u'THREDDS Visor')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -165,7 +164,7 @@ class THREDDSExplorer:
         icon_path = ':/plugins/THREDDSExplorer/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr('Access THREDDS server list'),
+            text=self.tr(u'Access THREDDS server list'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -174,7 +173,7 @@ class THREDDSExplorer:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr('THREDDS Explorer Plugin'),
+                self.tr(u'THREDDS Explorer Plugin'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar

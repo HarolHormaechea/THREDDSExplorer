@@ -23,24 +23,24 @@ import sys
 import traceback
 from threading import RLock
 
-from PyQt4 import uic
-from PyQt4 import QtGui
-from PyQt4.QtCore import pyqtSlot, SIGNAL, Qt
-from PyQt4.QtGui import QMessageBox, QStatusBar
+from PyQt5 import uic
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtWidgets import QMessageBox, QStatusBar
 
 from qgis.utils import iface
 from qgis.core import QgsMessageLog
-from qgis.core import QgsLayerTreeGroup, QgsMapLayerRegistry
+from qgis.core import QgsLayerTreeGroup, QgsProject
 
-from THREDDSExplorer.libvisor import VisorController
-from THREDDSExplorer.libvisor.animation.AnimationFrame import AnimationFrame
-from THREDDSExplorer.libvisor.persistence import ServerDataPersistenceManager
-from THREDDSExplorer.libvisor.utilities.LayerLegendGroupifier import LayerGroupifier
-from THREDDSExplorer.libvisor.providersmanagers.BoundingBoxInfo import BoundingBox
+from .libvisor import VisorController
+from .libvisor.animation.AnimationFrame import AnimationFrame
+from .libvisor.persistence import ServerDataPersistenceManager
+from .libvisor.utilities.LayerLegendGroupifier import LayerGroupifier
+from .libvisor.providersmanagers.BoundingBoxInfo import BoundingBox
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'THREDDS_Explorer_dockwidget_base.ui'))
 
-class Visor(QtGui.QDockWidget, FORM_CLASS):
+class Visor(QtWidgets.QDockWidget, FORM_CLASS):
     """
     UI manager for the visor.
 
@@ -157,7 +157,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
                     message += "under 2.0 are not guaranteed to work when\n"
                     message += "attempting to load WCS Layers.\nPlease update GDAL."
 
-                    reply = QtGui.QMessageBox.question(self, 'GDAL: Unsupported version found',
+                    reply = QtWidgets.QMessageBox.question(self, 'GDAL: Unsupported version found',
                             (message), "Close", "Don't show again")
 
                     # If requested to, record setting not to show warning again:
@@ -171,7 +171,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
                 message += "attempting to load WCS Layers. If you have any issues,\n"
                 message += "please update GDAL."
 
-                reply = QtGui.QMessageBox.question(self, 'GDAL: Unsupported version found',
+                reply = QtWidgets.QMessageBox.question(self, 'GDAL: Unsupported version found',
                         (message), "Close", "Don't show again")
 
                 # If requested to, record setting not to show warning again:
@@ -227,7 +227,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
         """Will change the alwaysontop window modifier to suit the user selection."""
 
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowStaysOnTopHint)
-        QtGui.QMainWindow.show(self)
+        QtWidgets.QMainWindow.show(self)
 
     @pyqtSlot(list, str)
     def onNewDatasetsAvailable(self, inDataSets, serverName):
@@ -292,7 +292,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
             return #If no dataset is available to be shown, we will create no tree.
 
         rootItem = self.tree_widget.invisibleRootItem();
-        newItem = QtGui.QTreeWidgetItem(rootItem, [self.datasetInUse.getName()])
+        newItem = QtWidgets.QTreeWidgetItem(rootItem, [self.datasetInUse.getName()])
         rootItem.addChild(self._createHierarchy(self.datasetInUse, newItem))
 
     def _createHierarchy(self, dataSet, treeItemParent):
@@ -321,13 +321,13 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
                 if mapElement.getName() in elementsAlreadyInTreeItemParent:
                     continue
                 else:
-                    newItem = QtGui.QTreeWidgetItem(treeItemParent, [mapElement.getName()])
+                    newItem = QtWidgets.QTreeWidgetItem(treeItemParent, [mapElement.getName()])
                     treeItemParent.addChild(newItem)
 
             subSets = dataSet.getSubSets()
             if len(subSets) == 0:
                 #We add a dummy element so the element open icon is created..
-                newItem = QtGui.QTreeWidgetItem(treeItemParent)
+                newItem = QtWidgets.QTreeWidgetItem(treeItemParent)
                 newItem.setText(0,"No subsets found")
                 treeItemParent.addChild(newItem)
             else:
@@ -337,7 +337,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
                     #create a new one and append it.
                     itemList = ([x for x in itemsAlreadyAddedToElement if x.text(0) == dataset.getName()])
                     if itemList is None or len(itemList) == 0:
-                        item = QtGui.QTreeWidgetItem(treeItemParent, [dataset.getName()])
+                        item = QtWidgets.QTreeWidgetItem(treeItemParent, [dataset.getName()])
                         treeItemParent.addChild(self._createHierarchy(dataset, item))
                     else:
                         item = itemList[0]
@@ -615,7 +615,7 @@ class Visor(QtGui.QDockWidget, FORM_CLASS):
         self.postInformationMessageToUser("Layer '"+image[1]+"' ["+image[2]+"]retrieved")
         layer = image[0]
         if layer and layer.isValid():
-            QgsMapLayerRegistry.instance().addMapLayer(layer)
+            QgsProject.instance().addMapLayer(layer)
             iface.zoomToActiveLayer()
             iface.legendInterface().refreshLayerSymbology(layer)
         else:

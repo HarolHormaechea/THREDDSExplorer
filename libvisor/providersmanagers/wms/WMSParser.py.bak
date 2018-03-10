@@ -4,18 +4,18 @@
 import json
 import time
 import uuid
-import urllib.request, urllib.error, urllib.parse
+import urllib2
 import threading
 from threading import RLock
 import xml.etree.ElementTree as ET
 
 # QGIS / PyQt libs:
 from qgis.core import QgsRasterLayer
-from PyQt5.Qt import pyqtSignal, QObject
+from PyQt4.Qt import pyqtSignal, QObject
 
 # Our libs:
-from . import WmsLayerInfo
-from ..BoundingBoxInfo import BoundingBox
+from THREDDSExplorer.libvisor.providersmanagers.wms import WmsLayerInfo
+from THREDDSExplorer.libvisor.providersmanagers.BoundingBoxInfo import BoundingBox
 
 class WMSparser(QObject):
     """Parsers to make objects from WMS service based maps.
@@ -72,7 +72,7 @@ class WMSparser(QObject):
             '&BBOX={bbox}'
         )
         
-        XML = urllib.request.urlopen(urlXML).read()
+        XML = urllib2.urlopen(urlXML).read()
         self.tree = ET.fromstring(XML)
         self.mapInfo = None
         self.mapLayer = None
@@ -204,7 +204,7 @@ class WMSparser(QObject):
         if resultLayer.isValid():
             self.mapLayer = resultLayer
         else:
-            raise Exception('No se pudo crear una capa válida.')
+            raise StandardError('No se pudo crear una capa válida.')
     
     def getMapInfo(self):
         """Retrieves our cached map information object or creates it anew if null."""
@@ -257,7 +257,7 @@ class WMSparser(QObject):
     
     def _getRangeValuesFromJSONPath(self, jsonPath):
         #print("CALCULATING RANGE: "+jsonPath+" at system time "+str(datetime.datetime.now()))
-        jsonRawData = urllib.request.urlopen(jsonPath)
+        jsonRawData = urllib2.urlopen(jsonPath)
         jsonObject = json.load(jsonRawData)
         newMin = jsonObject["min"]
         newMax = jsonObject["max"]
