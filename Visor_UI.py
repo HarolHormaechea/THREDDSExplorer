@@ -29,7 +29,7 @@ from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtWidgets import QMessageBox, QStatusBar
 
 from qgis.utils import iface
-from qgis.core import QgsMessageLog
+from qgis.core import QgsMessageLog, Qgis
 from qgis.core import QgsLayerTreeGroup, QgsProject
 
 from .libvisor import VisorController
@@ -69,6 +69,7 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         self.controller.mapInfoRetrieved.connect(self._onMapInfoReceivedFromController)
         self.controller.batchDownloadFinished.connect(self.createLayerGroup)
 
+        #TODO: SIGNALS!
         self.showEmptyDatasetNodes = showEmptyDatasetNodes # TODO: self-explanatory...
         self.combo_dataset_list.currentIndexChanged.connect(self._onDataSetItemChanged)
         self.tree_widget.itemClicked.connect(self._onMapTreeWidgetItemClicked)
@@ -76,14 +77,14 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.tabWidget.currentChanged.connect(self.runWhenTabChange)
 
-        self.connect(self.combo_wcs_coverage, SIGNAL("currentIndexChanged(const QString&)"),
-                self._onCoverageSelectorItemChanged)
-        self.connect(self.combo_wms_layer, SIGNAL("currentIndexChanged(const QString&)"),
-                self._onWMSLayerSelectorItemChanged)
-        self.connect(self.combo_wms_style_type, SIGNAL("currentIndexChanged(const QString&)"),
-                self._onWMSStyleTypeSelectorItemChanged)
-        self.connect(self.combo_wms_time, SIGNAL("currentIndexChanged(int)"), self._onWMSFirstTimeChanged)
-        self.connect(self.combo_wcs_time, SIGNAL("currentIndexChanged(int)"), self._onWCSFirstTimeChanged)
+        self.combo_wcs_coverage.currentIndexChanged.connect(self._onCoverageSelectorItemChanged)
+        
+        #self.connect(self.combo_wms_layer, SIGNAL("currentIndexChanged(const QString&)"),
+        #        self._onWMSLayerSelectorItemChanged)
+        #self.connect(self.combo_wms_style_type, SIGNAL("currentIndexChanged(const QString&)"),
+        #        self._onWMSStyleTypeSelectorItemChanged)
+        #self.connect(self.combo_wms_time, SIGNAL("currentIndexChanged(int)"), self._onWMSFirstTimeChanged)
+        #self.connect(self.combo_wcs_time, SIGNAL("currentIndexChanged(int)"), self._onWCSFirstTimeChanged)
 
         self.button_req_map.clicked.connect(self._onbuttonReqMapClicked)
         #self.actionToggleAlwaysOnTop.toggled.connect(self._onAlwaysOnTopPrefsChanged)
@@ -222,14 +223,12 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         self.WCS_westBound.setText("South: No info")
 
     # TODO: Unused (for now)
-    @pyqtSlot(bool)
     def _onAlwaysOnTopPrefsChanged(self, newSettingBool):
         """Will change the alwaysontop window modifier to suit the user selection."""
 
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowStaysOnTopHint)
         QtWidgets.QMainWindow.show(self)
 
-    @pyqtSlot(list, str)
     def onNewDatasetsAvailable(self, inDataSets, serverName):
         """
         A callback for when the dataSet displayed
@@ -253,7 +252,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         self.postInformationMessageToUser("Dataset list updated: "+str(len(StringList))+ " elements.")
         self.clearData()
 
-    @pyqtSlot(str)
     def postInformationMessageToUser(self, message):
         """
         Will post information messages to the user through
@@ -265,7 +263,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.statusbar.showMessage(message)
 
-    @pyqtSlot(str)
     def postCriticalErrorToUser(self, errorString):
         """
         To be used with non-recoverable error situations. Shows
@@ -281,7 +278,7 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         box.setIcon(QMessageBox.Critical)
         box.exec_()
 
-    @pyqtSlot(str)
+    
     def _onDataSetItemChanged(self, stringItem):
         """Will receive notifications about this window dataSet
         chosen combobox when the item selected changes."""
@@ -290,7 +287,7 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         self.datasetInUse = self.controller.getSingleDataset(self.combo_dataset_list.currentText())
         if self.datasetInUse is None:
             return #If no dataset is available to be shown, we will create no tree.
-
+        
         rootItem = self.tree_widget.invisibleRootItem();
         newItem = QtWidgets.QTreeWidgetItem(rootItem, [self.datasetInUse.getName()])
         rootItem.addChild(self._createHierarchy(self.datasetInUse, newItem))
@@ -359,7 +356,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.controller.getMapObject(str(mQTreeWidgetItem.text(0)), str(mQTreeWidgetItem.parent().text(0)), self.datasetInUse)
 
-    @pyqtSlot(object)
     def _onMapInfoReceivedFromController(self, mapInfoObject):
         #print("_onMapInfoReceivedFromController 1"+str(mapInfoObject))
         self.currentMap = mapInfoObject
@@ -399,22 +395,25 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
             parent = self.tree_widget.findItems(dataSetObject.getName(), Qt.MatchRecursive)
         self._createHierarchy(dataSetObject, parent[0])
 
-    @pyqtSlot(str)
-    def _onCoverageSelectorItemChanged(self, QStringItem):
+    def _onCoverageSelectorItemChanged(self, index):
         """
         Will triger when the user selects a coverage name in
         the combobox (or that list is updated) so the available
         times to request to server are updated in the other
         combobox for the WCS service.
         """
-
+        print("_onCoverageSelectorItemChanged "+self.combo_wcs_coverage.currentText())
+        currentSelectedText = self.combo_wcs_coverage.currentText()
         self.combo_wcs_time.clear()
         if self.currentCoverages is not None:
-            coverageElement = [ x for x in self.currentCoverages if x.getName() == str(QStringItem) ]
+            coverageElement = [ x for x in self.currentCoverages if x.getName() == currentSelectedText ]
+            print(coverageElement)
             if None is not coverageElement or len(coverageElement) > 0:
                 try:
+                    print(coverageElement[0].getTiempos())
                     self.wcsAvailableTimes = coverageElement[0].getTiempos()
                     self.combo_wcs_time.addItems(self.wcsAvailableTimes)
+                    self.combo_wcs_time_last.addItems(self.wcsAvailableTimes)
                     BBinfo = coverageElement[0].getBoundingBoxInfo()
                     self.WCSBoundingBoxInfo.setText("CRS = "+BBinfo.getCRS()
                                                 +"\n\n Bounding Box information (decimal degrees):" )
@@ -425,8 +424,8 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
                 except IndexError:
                     pass
 
-    @pyqtSlot(str)
     def _onWMSLayerSelectorItemChanged(self, QStringItem):
+        print("_onWMSLayerSelectorItemChanged")
         self.combo_wms_style_type.clear()
         self.combo_wms_style_palette.clear()
         self.combo_wms_time.clear()
@@ -451,14 +450,12 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
                 self.WMS_northBound.setText(BBinfo.getNorth())
                 self.WMS_southBound.setText(BBinfo.getSouth())
 
-    @pyqtSlot(str)
     def _onWMSStyleTypeSelectorItemChanged(self, qstringitem):
         self.combo_wms_style_palette.clear()
         self.combo_wms_style_palette.addItems(list({(x.getName().split(r"/"))[1]
                                                     for x in self.wmsAvailableStyles
                                                     if str(qstringitem) in x.getName()}))
 
-    @pyqtSlot(int)
     def _onWCSFirstTimeChanged(self, position):
         #print("self.wcsAvailableTimes"+str((sorted(self.wcsAvailableTimes))))
         #print("WCS INDEX: "+str(position))
@@ -467,7 +464,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         self.combo_wcs_time_last.addItems(
           (sorted(self.wcsAvailableTimes))[position:])
 
-    @pyqtSlot(int)
     def _onWMSFirstTimeChanged(self, position):
         #print("self.wmsAvailableTimes"+str((sorted(self.wmsAvailableTimes))))
         #print("WMS INDEX: "+str(position))
@@ -525,7 +521,7 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
                         pass
             except Exception as exc:
                 self.postInformationMessageToUser("There was an error retrieving the WCS data.")
-                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
         elif self.tabWidget.currentIndex() == self.tabWidget.indexOf(self.tab_WMS):
             try:
                 selectedBeginTimeIndex = self.wmsAvailableTimes.index(self.combo_wms_time.currentText())
@@ -571,9 +567,8 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
             except Exception as exc:
                 print(exc)
                 self.postInformationMessageToUser("There was an error retrieving the WMS data.")
-                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
-    @pyqtSlot(list, str)
     def createLayerGroup(self, layerList, groupName):
         if layerList:
             groupifier = LayerGroupifier(layerList, groupName)
@@ -584,7 +579,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         else:
             self.postInformationMessageToUser("There was a problem showing the time series.")
 
-    @pyqtSlot(QgsLayerTreeGroup, list)
     def _onNewLayerGroupGenerated(self, groupObject, layerList):
         """
         Currently only used to show the first image of a newly created group
@@ -601,7 +595,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         else:
             self.postInformationMessageToUser("There was a problem showing a layer.")
 
-    @pyqtSlot(tuple)
     def showNewImage(self, image):
         """
         Will order this UI to post a new image to the user
@@ -621,7 +614,6 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         else:
             self.postInformationMessageToUser("There was a problem loading the layer.")
 
-    @pyqtSlot()
     def _onManageServersRequested(self):
         """Delegates the action of showing the server manager window to the controller."""
 

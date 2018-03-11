@@ -46,8 +46,9 @@ class THREDDSExplorer:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        print(QSettings().value('locale/userLocale'));
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value('locale/userLocale')
+        if locale is not None:
+            locale = locale[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',

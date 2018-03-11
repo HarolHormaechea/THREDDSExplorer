@@ -66,7 +66,6 @@ class AnimationWMSLayerManager(QWidget):
         # We force a first update on the available times:
         self._onSelectedLayerChanged(self.dialog.layerSelector.currentText())
         
-    @pyqtSlot(str)
     def _onSelectedLayerChanged(self, QStringItem):
         self.dialog.graphicSelector.clear()
         self.dialog.paletteSelector.clear()
@@ -82,14 +81,12 @@ class AnimationWMSLayerManager(QWidget):
                 self.dialog.beginTimeSelector.addItems(self.selectedLayer.getTimes())
                 self._onSelectedBeginTime(0)
                 
-    @pyqtSlot(str)
     def _onWMSGraphicSelectorSelectorItemChanged(self, qstringitem):
         self.dialog.paletteSelector.clear()
         self.dialog.paletteSelector.addItems(list({(x.getName().split(r"/"))[1] 
                                                     for x in self.wmsAvailableStyles
                                                     if str(qstringitem) in x.getName()}))
       
-    @pyqtSlot(int)
     def _onSelectedBeginTime(self, position):
         #Only times which are after the one picked in the "begin at.."
         #will be able to be selected in the "finish at.." box.
@@ -100,7 +97,6 @@ class AnimationWMSLayerManager(QWidget):
             pass
         self.dialog.buttonAddLayer.setEnabled(True)
         
-    @pyqtSlot()
     def _onAcceptClicked(self):
         selectedLayer = self.dialog.layerSelector.currentText()
 

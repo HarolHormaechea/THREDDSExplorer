@@ -100,7 +100,7 @@ class WMSparser(QObject):
                                 |__Url      (Style URL)
                                 
         """
-        
+        print("WMS - getMapInfoFromCapabilities")
         nombre = self.tree.find('.//{0}Layer/{0}Layer/{0}Title'.format(self.namespace)).text
         getMapAttrib = self.tree.find('.//{0}Capability/{0}Request/{0}GetMap/{0}DCPType/{0}HTTP/{0}Get/{0}OnlineResource'.format(self.namespace)).attrib
         url = getMapAttrib[self.xlink+'href']

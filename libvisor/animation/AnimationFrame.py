@@ -17,7 +17,7 @@ from http.client import HTTPException
 from qgis.utils import iface
 from PyQt5.QtCore import QTime
 from PyQt5.QtWidgets import QMessageBox
-from qgis.core import QgsMessageLog
+from qgis.core import QgsMessageLog, Qgis
 from PyQt5.Qt import pyqtSlot, pyqtSignal, Qt
 from PyQt5.QtWidgets import QTableWidgetItem, QDockWidget
 
@@ -90,7 +90,7 @@ class AnimationFrame(QDockWidget):
         self.controller.statusSignal.connect(self._updateInfoText)
         self.controller.animationPlaybackEnd.connect(self._onAnimationPlaybackFinish)
 
-    @pyqtSlot()
+    
     def _removeLayerFromAnimation(self):
         """Removes one of the layers to be animated from the animation handler."""
 
@@ -99,16 +99,16 @@ class AnimationFrame(QDockWidget):
             self.layerInfoList.remove(self.layerInfoList[selectedIndex])
             self._updateTable()
 
-    @pyqtSlot()
+    
     def _onCancelRequested(self):
         if self.controller:
             self.controller.cancelLoad()
 
-    @pyqtSlot(str)
+    
     def _onError(self, errorMessage):
         self.errorSignal.emit(errorMessage)
 
-    @pyqtSlot(str)
+    
     def _updateInfoText(self, message):
         self.animationUI.labelInfo.setText(message)
 
@@ -116,7 +116,7 @@ class AnimationFrame(QDockWidget):
         self.animationUI.animationSlider.setMinimum(0)
         self.animationUI.animationSlider.setMaximum(0)
 
-    @pyqtSlot()
+    
     def _onAddWCSLayerButtonClicked(self):
         if self.mapObject and self.mapObject.getWCS():
             self.addLayerMenu = AnimationWCSManager.AnimationWCSLayerManager(self.mapObject)
@@ -125,7 +125,7 @@ class AnimationFrame(QDockWidget):
         else:
             self.onError("A map must first be selected\nin THREDDS Explorer catalog view.")
 
-    @pyqtSlot()
+    
     def _onAddWMSLayerButtonClicked(self):
         if self.mapObject:
             try:
@@ -134,17 +134,17 @@ class AnimationFrame(QDockWidget):
                 self.addLayerMenu.show()
             except (HTTPException, URLError, timeout):
                 self.onError("Connection error: Server or resource unreachable.")
-                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
         else:
             self.onError("A map must first be selected\nin THREDDS Explorer catalog view.")
 
-    @pyqtSlot()
+    
     def _onAddOtherLayerButtonClicked(self):
         if self.controller is None:
             self.initController()
         self.controller.addExternalTimeLayer()
 
-    @pyqtSlot(object)
+    
     def _addLayerToAnimation(self, animationLayer):
         """Will create an AnimationLayer object with the required information,
         and append it to our self.layerList internal list.
@@ -157,7 +157,7 @@ class AnimationFrame(QDockWidget):
         self.layerInfoList.append(animationLayer)
         self._updateTable()
 
-    @pyqtSlot(int)
+    
     def onUserMovesSlider(self, newValue):
         if self.controller is not None:
             self.controller.setCurrentFrame(newValue)
@@ -183,11 +183,11 @@ class AnimationFrame(QDockWidget):
             table.setItem(i,1, QTableWidgetItem(item.getLayerName()))
             table.setItem(i,2, QTableWidgetItem(str(item.getTimes())))
 
-    @pyqtSlot()
+    
     def _updateProgressBar(self):
         self.animationUI.progressBar.setValue(self.animationUI.progressBar.value()+1)
 
-    @pyqtSlot(tuple)
+    
     def _updateSeekBar(self, infoTuple):
         """Update the seek bar.
 
@@ -197,12 +197,12 @@ class AnimationFrame(QDockWidget):
         self._updateInfoText(infoTuple[1])
         self.animationUI.animationSlider.setValue(infoTuple[0])
 
-    @pyqtSlot(int)
+    
     def _newFrameRateSelected(self, frameRateMilliseconds):
         self.controller.setFrameRate(frameRateMilliseconds)
         self.animationUI.animationSlider.setMaximum(self.controller.getNumberOfFrames())
 
-    @pyqtSlot(object)
+    
     def _timeVariationChanged(self, value):
         vhours = self.animationUI.timeFrameVariation.time().hour() \
                 + (self.animationUI.daysFrameVariation.value() * 24)
@@ -215,7 +215,7 @@ class AnimationFrame(QDockWidget):
         self.controller.setTimeDeltaPerFrame(delta)
         self.animationUI.animationSlider.setMaximum(self.controller.getNumberOfFrames())
 
-    @pyqtSlot(object)
+    
     def _toleranceChanged(self):
         vhours = self.animationUI.timeTolerance.time().hour() \
                 + (self.animationUI.daysTolerance.value() * 24)
@@ -265,7 +265,7 @@ class AnimationFrame(QDockWidget):
             self.controller.setFrameRate(self.animationUI.frameRateSpinbox.value())
         except AttributeError as e:
             self.onError(str(e))
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
     def play(self):
         self.animationUI.labelInfo.show()
@@ -274,7 +274,7 @@ class AnimationFrame(QDockWidget):
         if self.controller is not None:
             self.controller.togglePlay()
 
-    @pyqtSlot()
+    
     def _onAnimationReady(self):
         """Sets up the interface so the user can now
         interact with the animation playback components.
@@ -284,7 +284,7 @@ class AnimationFrame(QDockWidget):
         self.animationUI.cancelButton.hide()
         self.controller.setCurrentFrame(0) #We show the user the first frame.
 
-    @pyqtSlot()
+    
     def _onAnimationPlaybackFinish(self):
         if self.animationUI.loopCheckbox.isChecked():
             self.play()

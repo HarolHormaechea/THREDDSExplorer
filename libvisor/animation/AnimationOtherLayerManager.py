@@ -74,7 +74,6 @@ class AnimationOtherLayerManager(QWidget):
             self.dialog.progressInfoLabel.show()
             
         
-    @pyqtSlot()
     def _onTeseoButtonClicked(self):
         self.TeseoController.animationReady.connect(self._onAnimatedLayerCreated)
         self.TeseoController.animationReady.connect(self._onCreationStepDone)
@@ -82,11 +81,11 @@ class AnimationOtherLayerManager(QWidget):
         self.TeseoController.generateAnimation()
         self.dialog.progressInfoLabel.show()
         
-    @pyqtSlot(str)
+   
     def _onCreationStepDone(self, infoString):
         self.dialog.progressInfoLabel.setText(infoString)
     
-    @pyqtSlot(str)
+    
     def _onAnimatedLayerCreated(self, descriptionString):
         animationObjects = self.TeseoController.getAnimationLayerObjects()
         for item in animationObjects:

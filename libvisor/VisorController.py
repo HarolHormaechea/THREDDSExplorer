@@ -11,6 +11,7 @@ from qgis.core import QgsMessageLog
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt5 import QtWidgets
 from .. import NotAuthorized
+from qgis.core import Qgis
 
 from . import ThreddsMapperGeneric as TMR
 from .providersmanagers.wms import WMSParser as WMS
@@ -90,7 +91,7 @@ class VisorController(QObject):
             self.serverDataService.hide()
         except (HTTPException, URLError, ValueError, timeout):
             self.errorMessage.emit("Error fetching datasets: Server unreachable")
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
     def asyncQueryDataset(self, depth=0):
         """Will request an asynchronous update of the underlying
@@ -104,16 +105,15 @@ class VisorController(QObject):
             threading.Thread(target = self._fetchDatasetList, args=(depth,)).start()
         except (HTTPException, URLError, ValueError, timeout):
             self.errorMessage.emit("Error fetching datasets: Server unreachable or corrupt data found.")
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
     def _fetchDatasetList(self, depth):
         try:
             self.InfoService.fetchAvailableDatasets(depth)
         except (HTTPException, URLError, ValueError, timeout) as e:
             self.errorMessage.emit("Error fetching datasets: URL not found")
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
-    @pyqtSlot(list, str)
     def _onNewDataSetListRetrieved(self, dataSetList, serverName):
         """Redirects any signal received about a new available
         datasetlist to any listener registered to our own signals.
@@ -154,7 +154,7 @@ class VisorController(QObject):
             self.threddsDataSetUpdated.emit(dataSetObject)
         except (HTTPException, URLError, ValueError, timeout):
             self.errorMessage.emit("Error fetching datasets: Server unreachable")
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
 
     def getMapObject(self, mapName, parentSetName, projectDataSet):
         """Will take the requested map name (mapName), the map parent sub set
@@ -209,7 +209,7 @@ class VisorController(QObject):
                 #print("emitting from controller... "+str(mapInfoList.values()[0]))
                 self.mapInfoRetrieved.emit(list(mapInfoList.values())[0])
             except IndexError:
-                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
                 return None
 
 
@@ -241,7 +241,7 @@ class VisorController(QObject):
     def notAuthorized(self):
         notAuth = NotAuthorized.NotAuthorized()
         if notAuth.exec_() == QtWidgets.QDialog.Accepted:
-            QgsMessageLog.logMessage(traceback.format_exc(), "Protected dataset, not authorized", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "Protected dataset, not authorized", Qgis.Critical )
             self.standardMessage.emit("Protected dataset, not authorized")
 
                 
@@ -385,10 +385,9 @@ class VisorController(QObject):
             else:
                 return None
         except (HTTPException,urllib.error.URLError, timeout) as e:
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
             return None
 
-    @pyqtSlot(dict, WMSDownloadWorkerThread)
     def BatchWorkerThreadDone(self, layerDictionary, workerObject):
         """
         :param layerDictionary: List of layers and times they represent.
@@ -397,7 +396,7 @@ class VisorController(QObject):
         try:
             self.batchDownloadFinished.emit(list(layerDictionary.values()), workerObject.getJobName())
         except KeyError:
-            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
             # Might happen if a thread is cancelled in the last frame download,
             # as it'll already have been queued for removal from the threadsInUse dict
             pass

@@ -12,7 +12,7 @@ from datetime import timedelta
 
 # QGIS /PyQt libs:
 from qgis.utils import iface
-from qgis.core import QgsMessageLog
+from qgis.core import QgsMessageLog, Qgis
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal, pyqtSlot, Qt
 
 # Our libs:
@@ -128,7 +128,7 @@ class Controller(QObject):
             timeRangeInDelta = abs(self.animationEndTime - self.animationBeginTime)
             return int( (timeRangeInDelta.total_seconds()/self.timeDeltaPerFrame.total_seconds()))
         except (AttributeError, ZeroDivisionError, TypeError):
-            # QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+            # QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
             return 0
 
     def onNextFrameRequested(self):
@@ -158,10 +158,10 @@ class Controller(QObject):
                     self.pause()
                     self.errorSignal.emit("A layer for this animation was not found.\nWas it removed?"\
                                           " Please, click\nagain on prepare animation to fix this issue.")
-                    QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                    QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
                 self.framesShown.append(layer)
             except KeyError:
-                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", QgsMessageLog.CRITICAL )
+                QgsMessageLog.logMessage(traceback.format_exc(), "THREDDS Explorer", Qgis.Critical )
                 continue
 
         #print("MAP SEARCH FINISHED")
@@ -348,7 +348,6 @@ class Controller(QObject):
             self.threadsInUse[worker] = thread
             thread.start()
 
-    @pyqtSlot(dict, QObject)
     def BatchWorkerThreadDone(self, layerDict, workerObject):
         """
         :param animationLayerObject: The previously provided AnimationLayer object
@@ -383,7 +382,6 @@ class Controller(QObject):
             #as it'll already have been queued for removal from the threadsInUse dict
             pass
 
-    @pyqtSlot(int, str)
     def WorkerThreadDownloadError(self, numberOfFailedDownloads, layerName):
         self.errorSignal.emit("Warning: "+str(numberOfFailedDownloads)+" frames failed to be downloaded from layer \n"
                               +layerName+". The resulting animation\nmay have gaps.")
@@ -398,7 +396,6 @@ class Controller(QObject):
         self.addLayerMenu.animationLayerCreated.connect(self.addNewExternalAnimatedLayer)
         self.addLayerMenu.show()
 
-    @pyqtSlot(object)
     def addNewExternalAnimatedLayer(self, animationLayer):
         self.externalAnimationLoaded.emit(animationLayer)
 
@@ -418,7 +415,6 @@ class Controller(QObject):
         or self.animationEndTime < orderedElements[len(orderedElements)-1]:
             self.animationEndTime = orderedElements[len(orderedElements)-1]
 
-    @pyqtSlot(AnimationLayer,str)
     def addPendingLayerGroupRequest(self, animationLayerObject, groupName):
         while len(list(self.threadsInUse.keys())) > 0:
             time.sleep(0.5)

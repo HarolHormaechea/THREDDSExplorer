@@ -70,7 +70,6 @@ class AnimationWCSLayerManager(QWidget):
         #We force a first update on the available times...
         self._onSelectedCoverageChanged(self.dialog.layerSelector.currentText())
         
-    @pyqtSlot(str)
     def _onSelectedCoverageChanged(self, QStringItem):
         self.selectedCover = [x for x in self.coverages if x.getName() == QStringItem][0]
         bbox = self.selectedCover.getBoundingBoxInfo();
@@ -82,7 +81,6 @@ class AnimationWCSLayerManager(QWidget):
         self._onSelectedBeginTime(0)
         self.repopulateBBOX(bbox)
       
-    @pyqtSlot(int)
     def _onSelectedBeginTime(self, position):
         #Only times which are after the one picked in the "begin at.."
         #will be able to be selected in the "finish at.." box.
@@ -94,7 +92,6 @@ class AnimationWCSLayerManager(QWidget):
             pass
         self.dialog.buttonAddLayer.setEnabled(True)
         
-    @pyqtSlot()
     def _onAcceptClicked(self):
         selectedLayer = self.dialog.layerSelector.currentText()
         allAvailableTimes = self.dataList[str(selectedLayer)]

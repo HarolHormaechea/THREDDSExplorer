@@ -15,7 +15,7 @@ from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import pyqtSignal
 
 from . import Server_Manager_UI as ManagerUI
-from . import AddServerWindowManager as addServerManager
+from .AddServerWindowManager import AddServerWindowManager as addServerManager
 from .ThreddsServerInfo import ThreddsServerInfoObject, isValidName, isValidURL
 
 class ServerStorageManager(QDialog):
@@ -167,7 +167,7 @@ class ServerStorageManager(QDialog):
             self.serverSelected.emit(self.availableServers[selectedRowNumber])
 
     def _onbuttonAddClick(self):
-        self.addServerWindowManager = addServerManager()
+        self.addServerWindowManager = addServerManager.AddServerWindowManager()
         self.addServerWindowManager.newServerSubmitted.connect(self._onAttemptToAddNewServer)
         self.addServerWindowManager.show()
 
@@ -185,7 +185,6 @@ class ServerStorageManager(QDialog):
                 self.deleteServerInfo(deleteTarget.text())
                 self.reloadTable()
 
-    @pyqtSlot(tuple)
     def _onAttemptToAddNewServer(self, inServerDetails):
         """Checks whether the server details provided are valid (or seem to be so)
         and then adds them to the underlying storage system. Will hide the add server
