@@ -5,7 +5,7 @@ Created on 28 de mar. de 2016
 '''
 from PyQt5.QtCore import QObject, pyqtSignal
 from qgis.core import QgsRectangle, QgsLayerTreeLayer, QgsLayerTreeGroup, \
-                         QgsProject
+                         QgsProject, QgsLayerTreeNode
 from qgis.utils import iface
 from threading import RLock
 
@@ -73,7 +73,7 @@ class LayerGroupifier(QObject):
             self.correctlyRegisteredLayers = sorted(self.layerList, key=lambda layer: layer.name())
             for layer in self.correctlyRegisteredLayers:
                 self.generatedGroup.addLayer(layer)
-                iface.legendInterface().setLayerVisible(layer, False)
+                QgsProject.instance().layerTreeRoot().findLayer(layer.id()).setItemVisibilityChecked(False)
             
             #We combine the group extents so all the layers are zoomed
             #equally on play.

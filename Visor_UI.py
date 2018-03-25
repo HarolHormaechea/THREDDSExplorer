@@ -591,7 +591,7 @@ class Visor(QtWidgets.QDockWidget, FORM_CLASS):
         :type  layerList: [QgsLayer]
         """
         if (layerList[0]).isValid():
-            iface.legendInterface().setLayerVisible(layerList[0], True)
+            QgsProject.instance().layerTreeRoot().findLayer(layerList[0].id()).setItemVisibilityChecked(True)
         else:
             self.postInformationMessageToUser("There was a problem showing a layer.")
 

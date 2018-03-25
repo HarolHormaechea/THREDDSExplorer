@@ -12,7 +12,7 @@ from datetime import timedelta
 
 # QGIS /PyQt libs:
 from qgis.utils import iface
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsProject
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal, pyqtSlot, Qt
 
 # Our libs:
@@ -150,7 +150,7 @@ class Controller(QObject):
                 layer = animation.getFrameByTime(self.nextFrame,
                                                   self.timeDeviationTolerance)
                 try:
-                    iface.legendInterface().setLayerVisible(layer, True)
+                    QgsProject.instance().layerTreeRoot().findLayer(layer.id()).setItemVisibilityChecked(True)
                 except RuntimeError:
                     #Will happen if the animator attempts to set as visible
                     #a no longer existing layer (i.e. if the user removes
